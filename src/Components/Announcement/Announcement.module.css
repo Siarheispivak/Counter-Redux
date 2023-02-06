@@ -1,0 +1,12 @@
+.announcement {
+  font-weight: bold;
+  padding: 10px;
+  display: inline-block;
+  color: #FFFFFF;
+}
+
+.red {
+  color: red;
+}
+
+/*# sourceMappingURL=Announcement.module.css.map */

@@ -108,9 +108,10 @@ html {
     background: rgba(0, 0, 0, 0.43);
     border: 5px solid #F18230;
     padding: 20px;
-    transform: translate(-310px);
+    //transform: translate(-310px);
+    transform: translate(0);
     transition: 1s ease-in-out;
-    opacity: 4%;
+    //opacity: 4%;
     z-index: 2;
 
     &:hover {

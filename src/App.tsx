@@ -1,17 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useReducer, useState} from 'react';
 import './App.css';
 import Button from "./Components/Button/Button";
 import Counter from "./Components/Counter/Counter";
 import {Settings} from "./Components/Settings";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
+import {CounterType, countReducer, setErrorAC, setMaxValueAC} from "./Reducers/counter-reducer";
+import {storeType} from "./Store/Store";
 
-export type CounterType = {
-    counter: number,
-    maxValue: number,
-    minValue:number,
-    announcement:string,
-    error:boolean
-}
 
 function App() {
     // const state = useSelector<>()
@@ -29,6 +24,20 @@ function App() {
         setCounter(localStorageMaxValue)
     }, [])
 
+    // let [counts, Dispatch] = useReducer<CounterType>(countReducer, {
+    //     counter: 0,
+    //     maxValue: 0,
+    //     minValue: 0,
+    //     errorStart: '',
+    //     error: "",
+    //     disable: false
+    // })
+
+  const counts = useSelector<storeType,CounterType>(state =>state.count)
+const dispatch = useDispatch()
+
+    console.log(counts.error)
+
     const increaseCounter = () => {
         setCounter(counter + 1)
     }
@@ -37,30 +46,32 @@ function App() {
     }
 
     const newMaxValue = (value: number) => {
-        if (value < 0) {
-            setAnnouncement('Incorrect value')
-            setError(true)
-        } else if (value <= minValue) {
-            setAnnouncement('Incorrect value')
-            setMaxValue(value)
-            setError(true)
-        } else if (value <= counter) {
-            setAnnouncement('Incorrect value')
-            setError(true)
-        } else {
-
-            setAnnouncement('Save your amount')
-            setMaxValue(value)
-            setError(false)
-        }
+        // if(value === 34){
+        //     dispatch(setErrorAC())
+        // }
+        dispatch(setErrorAC('max',value))
+        dispatch(setMaxValueAC(value))
+        setMaxValue(value)
+        // setError(true)
+        // if (value < 0) {
+        //     setAnnouncement('Incorrect value')
+        //     setError(true)
+        // } else if (value <= minValue) {
+        //     setAnnouncement('Incorrect value')
+        //     setError(true)
+        // } else {
+        //     setAnnouncement('Save your amount')
+        //     setMaxValue(value)
+        //     // setError(false)
+        // }
 
     }
     const newMinValue = (value: number) => {
+        setError(true)
         if (value < maxValue && value >= 0) {
             setAnnouncement('Save your amount')
-            setError(false)
+            // setError(false)
             setMinValue(value)
-            // setCounter(value)
         } else if (value < 0) {
 
             setAnnouncement('Incorrect value')
@@ -70,17 +81,18 @@ function App() {
             setError(true)
         }
     }
-    // const setToLocalStorage = () => {
-    //     localStorage.setItem('maxValue', JSON.stringify(maxValue))
-    //     localStorage.setItem('minValue', JSON.stringify(minValue))
-    // }
-    // const getFromLocalStorage = () => {
-    //     let localStorageMaxValue = Number(localStorage.getItem('maxValue'))
-    //     let localStorageMinValue = Number(localStorage.getItem('minValue'))
-    //     setMaxValue(localStorageMaxValue)
-    //     setMinValue(localStorageMinValue)
-    //     setCounter(localStorageMaxValue)
-    // }
+    const setToLocalStorage = () => {
+        localStorage.setItem('maxValue', JSON.stringify(maxValue))
+        localStorage.setItem('minValue', JSON.stringify(minValue))
+    }
+    const getFromLocalStorage = () => {
+        let localStorageMaxValue = Number(localStorage.getItem('maxValue'))
+        let localStorageMinValue = Number(localStorage.getItem('minValue'))
+
+        setMaxValue(localStorageMaxValue)
+        setMinValue(localStorageMinValue)
+        setCounter(localStorageMaxValue)
+    }
 
     const disabled = counter === maxValue
     const disabled2 = counter === minValue
@@ -93,8 +105,8 @@ function App() {
                     <div className={'counterApp'}>
                         <Counter value={counter} maxValue={maxValue}/>
                         <div className={'buttonWrapper'}>
-                            <Button disabled={disabled} title={'inc'} callBack={increaseCounter}/>
-                            <Button disabled={disabled2} title={'reset'} callBack={resetCounter}/>
+                            <Button disabled={error || counter === maxValue} title={'inc'} callBack={increaseCounter}/>
+                            <Button disabled={error} title={'reset'} callBack={resetCounter}/>
                         </div>
                     </div>
                 </div>
@@ -105,9 +117,9 @@ function App() {
                     newMinValue={newMinValue}
                     announcement={announcement}
                     error={error}
-                    // disabled={disabled3}
-                    // getFromLocalStorage={getFromLocalStorage}
-                    // setToLocalStorage={setToLocalStorage}
+                    disabled={disabled3}
+                    getFromLocalStorage={getFromLocalStorage}
+                    setToLocalStorage={setToLocalStorage}
                 />
             </div>
         </>

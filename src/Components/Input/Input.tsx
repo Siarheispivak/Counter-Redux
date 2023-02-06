@@ -1,7 +1,7 @@
 import React, {ChangeEvent} from 'react';
 import Announcement from "../Announcement/Announcement";
 type InputPropsType = {
-    onChange:(value:number)=>void
+    onCallback:(value:number)=>void
     announcement:string
     value:number
     error:boolean
@@ -9,7 +9,7 @@ type InputPropsType = {
 
 const Input = (props:InputPropsType) => {
      const onChangeHandler = (e:ChangeEvent<HTMLInputElement>) => {
-         props.onChange(+(e.currentTarget.value))
+         props.onCallback(+(e.currentTarget.value))
     }
     return (
         <div>

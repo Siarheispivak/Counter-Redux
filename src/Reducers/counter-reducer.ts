@@ -1,8 +1,17 @@
-import {CounterType} from "../App";
-import counter from "../Components/Counter/Counter";
-
-const initialState: CounterType =
-    {counter: 0, maxValue: 0, minValue: 0, announcement: 'Choose amount', error: false}
+export type CounterType = {
+    counter: number,
+    maxValue: number,
+    minValue: number,
+    error: string,
+    disable: boolean
+}
+const initialState: CounterType = {
+    counter: 0,
+    maxValue: 1,
+    minValue: 0,
+    error: "",
+    disable: false
+}
 
 
 type ActionsTypes =
@@ -10,58 +19,42 @@ type ActionsTypes =
     | setMinValueACType
     | increaseCounterACType
     | resetCounterACType
-    |setAnnouncementACType;
+    | setErrorACType;
 
 export const countReducer = (state: CounterType = initialState, action: ActionsTypes) => {
     switch (action.type) {
+        case 'INCREASE-COUNTER': {
+            return {...state, counter: state.counter + 1}
+        }
+        case 'RESET-COUNTER': {
+            return {...state, counter: 0}
+        }
         case 'SET-MAX-VALUE': {
-            return {...state,maxValue: action.payload.newMaxValue}
-        }
-        case 'SET-MIN-VALUE':{
-           return  {...state,minValue: action.payload.newMinValue}
-        }
-        case 'INCREASE-COUNTER':{
-            return  {...state,counter:state.counter + 1}
-        }
-        case 'RESET-COUNTER':{
-            return {...state,counter:0}
-        }
-        case 'CHANGE-ANNOUNCEMENT':{
-            let counter =  state.counter;
+            let max = action.payload.value;
             let min = state.minValue
-            let max = state.maxValue
-            let result = ''
-            if(max < 0) result = 'Incorrect value'
-            if(max <= min) result = 'Incorrect value'
-            if(max <= counter) result = 'Incorrect value'
-
-            if(counter < max && counter >= 0) result = 'Save your amount'
-            if(min < 0) result = 'Incorrect value'
-            // max < 0 | max <= min | max <= counter | min < 0 ? true : false
-            return {...state,announcement:result}
+            if (max < 0 || max <= min) {
+                return {...state, maxValue: action.payload.value, disable: true}
+            }
+            return {...state, maxValue: action.payload.value}
         }
+        case 'SET-MIN-VALUE': {
+            let max = state.maxValue;
+            let min = action.payload.value
+            return !(min < max && min >= 0)
+                ? {...state, error: 'error', errorStart: 'errorMin', minValue: action.payload.value, disable: true}
+                : {...state, error: '', errorStart: '', minValue: action.payload.value, disable: false}
+        }
+        case 'SET-ERROR': {
+            let max = action.payload.count;
+            let min = state.minValue;
+
+            return (min < 0 || max <= min) ? {...state, error: action.payload.value} : state
+        }
+        default:
+            return state
     }
 }
 
-
-type  setMaxValueACType = ReturnType<typeof setMaxValueAC>
-export const setMaxValueAC = (value:number) => {
-    return {
-        type: 'SET-MAX-VALUE',
-        payload:{
-           newMaxValue: value
-        }
-    } as const
-}
-type  setMinValueACType = ReturnType<typeof setMinValueAC>
-export const setMinValueAC = (value:number) => {
-    return {
-        type: 'SET-MIN-VALUE',
-        payload:{
-           newMinValue: value
-        }
-    } as const
-}
 type  increaseCounterACType = ReturnType<typeof increaseCounterAC>
 export const increaseCounterAC = () => {
     return {
@@ -75,9 +68,35 @@ export const resetCounterAC = () => {
         type: 'RESET-COUNTER',
     } as const
 }
-type setAnnouncementACType = ReturnType<typeof setAnnouncementAC>
-export const setAnnouncementAC = () => {
+
+type  setMaxValueACType = ReturnType<typeof setMaxValueAC>
+export const setMaxValueAC = (value: number) => {
     return {
-        type: 'CHANGE-ANNOUNCEMENT',
+        type: 'SET-MAX-VALUE',
+        payload: {
+            value
+        }
     } as const
 }
+
+type  setMinValueACType = ReturnType<typeof setMinValueAC>
+export const setMinValueAC = (value: number) => {
+    return {
+        type: 'SET-MIN-VALUE',
+        payload: {
+            value
+        }
+    } as const
+}
+
+type setErrorACType = ReturnType<typeof setErrorAC>
+export const setErrorAC = (value: string, count: number) => {
+    return {
+        type: 'SET-ERROR',
+        payload: {
+            value,
+            count
+        }
+    } as const
+}
+
